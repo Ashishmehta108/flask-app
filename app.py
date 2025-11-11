@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from PyPDF2 import PdfReader
-from pyresparser import ResumeParser
-import spacy
+# from pyresparser import ResumeParser
+# import spacy
 from pdf2image import convert_from_path
 import pytesseract
 import unidecode
@@ -18,7 +18,7 @@ CORS(app, origins=["http://localhost:5173"])
 poppler_path = r"C:\poppler\Library\bin"
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-nlp = spacy.load("en_core_web_lg")
+# nlp = spacy.load("en_core_web_sm")
 
 
 def extract_text_from_pdf(pdf_path):
@@ -62,38 +62,38 @@ def save_text_to_pdf(text, output_path):
     app.logger.debug("PDF saved successfully.")
 
 
-def parse_resume(pdf_path):
-    app.logger.info(f"Parsing resume: {pdf_path}")
-    text_raw = extract_text_from_pdf(pdf_path)
+# def parse_resume(pdf_path):
+#     app.logger.info(f"Parsing resume: {pdf_path}")
+#     text_raw = extract_text_from_pdf(pdf_path)
 
-    tmp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-    tmp_pdf_path = tmp_pdf.name
-    tmp_pdf.close()
-    save_text_to_pdf(text_raw, tmp_pdf_path)
+#     tmp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+#     tmp_pdf_path = tmp_pdf.name
+#     tmp_pdf.close()
+#     save_text_to_pdf(text_raw, tmp_pdf_path)
 
-    parser_data = ResumeParser(pdf_path).get_extracted_data()
-    print(parser_data)
-    if parser_data.get("name") is None:
-        app.logger.info("Name not found, retrying with OCR PDF...")
-        parser_data = ResumeParser(tmp_pdf_path).get_extracted_data()
+#     parser_data = ResumeParser(pdf_path).get_extracted_data()
+#     print(parser_data)
+#     if parser_data.get("name") is None:
+#         app.logger.info("Name not found, retrying with OCR PDF...")
+#         parser_data = ResumeParser(tmp_pdf_path).get_extracted_data()
 
-    doc_spacy = nlp(text_raw)
-    filtered_college = [
-        ent.text
-        for ent in doc_spacy.ents
-        if "college" in ent.text.lower() or "university" in ent.text.lower()
-    ]
-    org_entities = [ent.text for ent in doc_spacy.ents if ent.label_ == "ORG"]
+#     doc_spacy = nlp(text_raw)
+#     filtered_college = [
+#         ent.text
+#         for ent in doc_spacy.ents
+#         if "college" in ent.text.lower() or "university" in ent.text.lower()
+#     ]
+#     org_entities = [ent.text for ent in doc_spacy.ents if ent.label_ == "ORG"]
 
-    parser_data["education"] = org_entities
-    parser_data["college_name"] = filtered_college[0] if filtered_college else None
+#     parser_data["education"] = org_entities
+#     parser_data["college_name"] = filtered_college[0] if filtered_college else None
 
-    if os.path.exists(tmp_pdf_path):
-        os.unlink(tmp_pdf_path)
-        app.logger.debug(f"Temporary OCR PDF deleted: {tmp_pdf_path}")
+#     if os.path.exists(tmp_pdf_path):
+#         os.unlink(tmp_pdf_path)
+#         app.logger.debug(f"Temporary OCR PDF deleted: {tmp_pdf_path}")
 
-    app.logger.info("Resume parsing completed.")
-    return parser_data
+#     app.logger.info("Resume parsing completed.")
+#     return parser_data
 
 
 @app.route("/parse_resume", methods=["POST"])
