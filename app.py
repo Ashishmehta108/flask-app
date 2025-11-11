@@ -13,7 +13,7 @@ from genai import  structure_resume_data
 
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"])
+CORS(app, origins=["https://frontend-flask-bpld.vercel.app"])
 
 poppler_path = r"C:\poppler\Library\bin"
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
